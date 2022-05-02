@@ -78,7 +78,7 @@ message MotionRequest
 
         // Intended orientation to be reached containing yaw, pitch and roll angle.
         //
-        optional Orientation3d  orientation = 3;
+        optional Orientation3d orientation = 3;
 
         // Intended velocity to be reached in in x-, y-, and z-direction.
         //
