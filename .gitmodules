@@ -1,3 +1,6 @@
 [submodule "flatbuffers"]
 	path = flatbuffers
 	url = https://github.com/google/flatbuffers.git
+[submodule "asciidoc-resources"]
+	path = asciidoc-resources
+	url = https://code.asam.net/common/style-resources.git
