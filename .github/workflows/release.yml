@@ -25,13 +25,13 @@ jobs:
         id: var_step
         working-directory: dist/open-simulation-interface
         run:  |
-          echo "version=$(git describe --tags --always |  sed 's/^v//')" >> $GITHUB_OUTPUT 
+          echo "version=$(git describe --tags --always |  sed 's/^v//')" >> $GITHUB_OUTPUT
           echo "suffix=$(git describe --tags --always | sed -r 's/^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+//')" >> $GITHUB_OUTPUT
       # Set the release date (current date)
       - name: Set date
         id: date_step
         run: echo "docdate=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
-  
+
   ## Tag and update related repositories before checking them out for Antora and the deliverables
   tagging_update:
     name: Update OSMP & Documentation
@@ -43,32 +43,32 @@ jobs:
         with:
           token: ${{ secrets.MACHINE_USER_PAT }}
           event-type: update-tag
-          repository: OpenSimulationInterface/osi-sensor-model-packaging
+          repository: philipwindecker/osi-sensor-model-packaging
           client-payload: '{"tag": "v${{needs.setup.outputs.output1}}", "suffix": "${{needs.setup.outputs.output3}}", "source_repo": "${{ github.repository }}"}'
       - name: Update Documentation
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.MACHINE_USER_PAT }}
           event-type: update-tag
-          repository: OpenSimulationInterface/osi-documentation
+          repository: philipwindecker/osi-documentation
           client-payload: '{"tag": "v${{needs.setup.outputs.output1}}"}'
       - name: Provide downstream repos some time
         uses: whatnick/wait-action@v0.1.2
         with:
           time: '1m'
 
-  
+
   ## Antora job, responsible for creating the Antora output of the release
   antora:
     name: Generate Antora content
     runs-on: ubuntu-22.04
     needs: [tagging_update]
-    steps:          
+    steps:
       # Check out the Antora generator
       - name: Checkout Antora generator
         uses: actions/checkout@v4
         with:
-          repository: OpenSimulationInterface/osi-antora-generator
+          repository: philipwindecker/osi-antora-generator
           path: antora
           submodules: true
       # Remove building branches for the main repositories. This will lead to Antora only using the tagged versions to build its content.
@@ -95,10 +95,10 @@ jobs:
       # Upload the created artifact for later jobs to use
       - name: Upload artifact
         uses: actions/upload-artifact@v4
-        with: 
+        with:
           name: antora
           path: antora/site
-  
+
   ## Step for creating the zip file with all deliverables
   deliverables:
     name: Create deliverables package
@@ -114,7 +114,7 @@ jobs:
       - name: Checkout sensor model packaging
         uses: actions/checkout@v4
         with:
-          repository: OpenSimulationInterface/osi-sensor-model-packaging
+          repository: philipwindecker/osi-sensor-model-packaging
           path: dist/osi-sensor-model-packaging
           fetch-depth: 0
       # Retrieve the Antora artifact from the previous job
@@ -139,13 +139,13 @@ jobs:
           name="ASAM OSI"
           version="Version: ${{needs.setup.outputs.output1}}"
           date="Date: ${{needs.setup.outputs.output2}}"
-          
+
           echo "/$(repeat $char_count_header "*")" > README.txt
           fill $char_count "$name" >> README.txt
           fill $char_count "$version" >> README.txt
           fill $char_count "$date" >> README.txt
           echo "$(repeat $char_count_header "*")/" >> README.txt
-          echo "The deliverables of ASAM OSI v${{needs.setup.outputs.output1}} include: 
+          echo "The deliverables of ASAM OSI v${{needs.setup.outputs.output1}} include:
 
           - ASAM_OSI_Standard_${{needs.setup.outputs.output1}}
           - open_simulation_interface_${{needs.setup.outputs.output1}}
@@ -155,7 +155,7 @@ jobs:
       # Package all collected deliverables
       - name: Zip Release
         uses: TheDoctor0/zip-release@0.7.6
-        with: 
+        with:
           filename: ASAM_OSI_${{needs.setup.outputs.output1}}.zip
           directory: dist
       # Upload the created artifact for the publish job
@@ -188,5 +188,5 @@ jobs:
         with:
           token: ${{ secrets.MACHINE_USER_PAT }}
           event-type: antora-build-trigger
-          repository: OpenSimulationInterface/osi-antora-generator
+          repository: philipwindecker/osi-antora-generator
           client-payload: '{"src": "${{ github.repository }}", "ref": "master"}'

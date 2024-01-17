@@ -68,7 +68,7 @@ jobs:
       run: sudo make install && sudo ldconfig
 
     - name: Install proto2cpp
-      run: git clone --depth 1 https://github.com/OpenSimulationInterface/proto2cpp.git
+      run: git clone --depth 1 https://github.com/philipwindecker/proto2cpp.git
 
     - name: Prepare C++ Build
       run: mkdir build
@@ -76,7 +76,7 @@ jobs:
     # Versioning
     - name: Get versioning
       id: get_version
-      run: echo "VERSION=$(git describe --always)" >> $GITHUB_OUTPUT 
+      run: echo "VERSION=$(git describe --always)" >> $GITHUB_OUTPUT
 
     - name: Prepare Documentation Build
       run: |
